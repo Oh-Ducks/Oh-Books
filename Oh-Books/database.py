@@ -1,0 +1,64 @@
+import sqlite3
+import requests
+
+# Define the API endpoint to fetch book data
+api_url = "https://api.example.com/books"
+
+# Make a request to the API to get book data
+response = requests.get(api_url)
+books_data = response.json()
+
+# Connect to the SQLite database (or create it if it doesn't exist)
+conn = sqlite3.connect('books.db')
+
+# Create a cursor object to execute SQL queries
+cursor = conn.cursor()
+
+# Create a table to store book data
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS books (
+        id INTEGER PRIMARY KEY,
+        title TEXT,
+        title_long TEXT,
+        isbn TEXT,
+        isbn13 TEXT,
+        dewey_decimal TEXT,
+        binding TEXT,
+        publisher TEXT,
+        language TEXT,
+        date_published TEXT,
+        edition TEXT,
+        pages INTEGER,
+        dimensions TEXT,
+        overview TEXT,
+        image TEXT,
+        msrp REAL,
+        excerpt TEXT,
+        synopsis TEXT,
+        authors TEXT,
+        subjects TEXT,
+        reviews TEXT,
+        related_type TEXT,
+        other_isbns TEXT
+    )
+''')
+
+# Iterate through the books data and insert it into the database
+for book in books_data:
+    cursor.execute('''
+        INSERT INTO books 
+        (title, title_long, isbn, isbn13, dewey_decimal, binding, publisher, language, date_published,
+        edition, pages, dimensions, overview, image, msrp, excerpt, synopsis, authors, subjects, reviews,
+        related_type, other_isbns)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        book['title'], book['title_long'], book['isbn'], book['isbn13'], book['dewey_decimal'],
+        book['binding'], book['publisher'], book['language'], book['date_published'], book['edition'],
+        book['pages'], book['dimensions'], book['overview'], book['image'], book['msrp'], book['excerpt'],
+        book['synopsis'], ', '.join(book['authors']), ', '.join(book['subjects']),
+        ', '.join(book['reviews']), book['related']['type'], ', '.join(f"{item['isbn']} - {item['binding']}" for item in book['other_isbns'])
+    ))
+
+# Commit changes and close connection
+conn.commit()
+conn.close()
