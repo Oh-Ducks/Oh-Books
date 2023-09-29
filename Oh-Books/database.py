@@ -2,7 +2,7 @@ import sqlite3
 import requests
 
 # Define the API endpoint to fetch book data
-api_url = "https://api.example.com/books"
+api_url = "https://api2.isbndb.com/book/"
 
 # Make a request to the API to get book data
 response = requests.get(api_url)
@@ -19,30 +19,19 @@ cursor.execute('''
     CREATE TABLE IF NOT EXISTS books (
         id INTEGER PRIMARY KEY,
         title TEXT,
-        title_long TEXT,
         isbn TEXT,
-        isbn13 TEXT,
-        dewey_decimal TEXT,
-        binding TEXT,
         publisher TEXT,
-        language TEXT,
         date_published TEXT,
-        edition TEXT,
         pages INTEGER,
-        dimensions TEXT,
         overview TEXT,
-        image TEXT,
-        msrp REAL,
-        excerpt TEXT,
-        synopsis TEXT,
         authors TEXT,
-        subjects TEXT,
-        reviews TEXT,
-        related_type TEXT,
-        other_isbns TEXT
+        my_rating REAL,
+        my_reading_count INTEGER,
+        is_owned INTEGER,
+        is_wishlisted INTEGER
     )
 ''')
-
+print("Table has been created")
 # Iterate through the books data and insert it into the database
 for book in books_data:
     cursor.execute('''
